@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using SistemaVentas.Dominio.Interfaces;
+﻿using SistemaVentas.Dominio.Interfaces;
 using SistemaVentas.Dominio.Modelos;
 using System.Data;
 using System.Data.SqlClient;
@@ -8,7 +7,7 @@ namespace SistemaVentas.Infraestructura.Repositorios
 {
     public class ProductoRepository : RepositorioBase, IProductoRepository
     {
-        public ProductoRepository(IConfiguration configuration) : base(configuration)
+        public ProductoRepository(string connectionString) : base(connectionString)
         {
         }
 

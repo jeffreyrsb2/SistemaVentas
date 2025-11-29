@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SistemaVentas.Aplicacion\SistemaVentas.Aplicacion.csproj" />
+    <ProjectReference Include="..\SistemaVentas.Infraestructura\SistemaVentas.Infraestructura.csproj" />
   </ItemGroup>
 
 </Project>

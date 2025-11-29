@@ -1,6 +1,18 @@
+using SistemaVentas.Aplicacion.Interfaces;
+using SistemaVentas.Aplicacion.Servicios;
+using SistemaVentas.Dominio.Interfaces;
+using SistemaVentas.Infraestructura.Repositorios;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// 1. Obtenemos la cadena de conexión desde appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// 2. Registramos los Repositorios (Capa Infraestructura)
+builder.Services.AddScoped<IProductoRepository>(provider => new ProductoRepository(connectionString));
+// 3. Registramos los Servicios (Capa Aplicación)
+builder.Services.AddScoped<IProductoService, ProductoService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

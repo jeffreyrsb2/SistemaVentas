@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace SistemaVentas.Infraestructura.Repositorios
+﻿namespace SistemaVentas.Infraestructura.Repositorios
 {
     public abstract class RepositorioBase
     {
         protected readonly string _connectionString;
 
-        public RepositorioBase(IConfiguration configuration)
+        public RepositorioBase(string connectionString)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = connectionString;
         }
     }
 }
