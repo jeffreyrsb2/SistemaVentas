@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="Arquitectura.jpg" />
+    <File Path="BD.sql" />
+    <File Path="DER Sistema de Ventas.png" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="SistemaVentas.Api/SistemaVentas.Api.csproj" />
+  <Project Path="SistemaVentas.Aplicacion/SistemaVentas.Aplicacion.csproj" />
+  <Project Path="SistemaVentas.Dominio/SistemaVentas.Dominio.csproj" />
+  <Project Path="SistemaVentas.Infraestructura/SistemaVentas.Infraestructura.csproj" />
+  <Project Path="SistemaVentas.Web/SistemaVentas.Web.csproj" />
+</Solution>
