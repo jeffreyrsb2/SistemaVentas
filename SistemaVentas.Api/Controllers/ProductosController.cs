@@ -1,0 +1,40 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SistemaVentas.Aplicacion.DTOs;
+using SistemaVentas.Aplicacion.Interfaces;
+
+namespace SistemaVentas.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductosController : ControllerBase
+    {
+        private readonly IProductoService _productoService;
+
+        public ProductosController(IProductoService productoService)
+        {
+            _productoService = productoService;
+        }
+
+        // GET: api/productos
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetProductos()
+        {
+            var productos = await _productoService.ObtenerTodosAsync();
+            return Ok(productos);
+        }
+
+        // GET: api/productos/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductoDto>> GetProducto(int id)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(id);
+
+            if (producto == null)
+            {
+                return NotFound(); // Devuelve 404 si no se encuentra
+            }
+
+            return Ok(producto);
+        }
+    }
+}

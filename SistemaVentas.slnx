@@ -4,6 +4,7 @@
     <File Path="BD.sql" />
     <File Path="DER Sistema de Ventas.png" />
     <File Path="README.md" />
+    <File Path="StoredProcedures.sql" />
   </Folder>
   <Project Path="SistemaVentas.Api/SistemaVentas.Api.csproj" />
   <Project Path="SistemaVentas.Aplicacion/SistemaVentas.Aplicacion.csproj" />

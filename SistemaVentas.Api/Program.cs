@@ -7,11 +7,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// 1. Obtenemos la cadena de conexión desde appsettings.json
+// Obtenemos la cadena de conexión desde appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// 2. Registramos los Repositorios (Capa Infraestructura)
+// Definimos CORS hacia el front-end
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowWebApp", policy => {
+        policy.WithOrigins("https://localhost:7082")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Registramos los Repositorios (Capa Infraestructura)
 builder.Services.AddScoped<IProductoRepository>(provider => new ProductoRepository(connectionString));
-// 3. Registramos los Servicios (Capa Aplicación)
+// Registramos los Servicios (Capa Aplicación)
 builder.Services.AddScoped<IProductoService, ProductoService>();
 
 builder.Services.AddControllers();
@@ -29,6 +38,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Usamos la política de CORS definida anteriormente
+app.UseCors("AllowWebApp");
 
 app.UseAuthorization();
 

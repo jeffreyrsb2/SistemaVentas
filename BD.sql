@@ -1,4 +1,7 @@
-﻿IF DB_ID('SistemaVentasDb') IS NOT NULL
+﻿USE master;
+GO
+
+IF DB_ID('SistemaVentasDb') IS NOT NULL
 BEGIN
 -- Eliminar la base de datos si ya existe
 -- Se pone en modo de usuario único para forzar la desconexión de cualquier conexión activa

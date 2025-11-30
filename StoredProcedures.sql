@@ -1,4 +1,7 @@
-﻿-- SP para obtener todos los productos
+﻿USE SistemaVentasDb;
+GO
+
+-- SP para obtener todos los productos
 CREATE OR ALTER PROCEDURE sp_ObtenerProductos
 AS
 BEGIN
