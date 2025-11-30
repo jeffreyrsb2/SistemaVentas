@@ -32,4 +32,29 @@ BEGIN
 END
 GO
 
--- (Crearemos los SP para Actualizar y Eliminar más adelante)
+-- SP para actualizar un producto existente
+CREATE OR ALTER PROCEDURE sp_ActualizarProducto
+    @Id INT,
+    @Nombre NVARCHAR(150),
+    @Descripcion NVARCHAR(500),
+    @Precio DECIMAL(18, 2),
+    @Stock INT
+AS
+BEGIN
+    UPDATE Productos
+    SET Nombre = @Nombre,
+        Descripcion = @Descripcion,
+        Precio = @Precio,
+        Stock = @Stock
+    WHERE Id = @Id;
+END
+GO
+
+-- SP para eliminar un producto
+CREATE OR ALTER PROCEDURE sp_EliminarProducto
+    @Id INT
+AS
+BEGIN
+    DELETE FROM Productos WHERE Id = @Id;
+END
+GO

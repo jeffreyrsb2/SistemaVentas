@@ -69,10 +69,63 @@ namespace SistemaVentas.Infraestructura.Repositorios
             return producto;
         }
 
-        // --- TODO: Crear, Actualizar y Eliminar ---
-        public Task<int> CrearAsync(Producto entidad) { throw new NotImplementedException(); }
-        public Task<bool> ActualizarAsync(Producto entidad) { throw new NotImplementedException(); }
-        public Task<bool> EliminarAsync(int id) { throw new NotImplementedException(); }
+        public async Task<int> CrearAsync(Producto entidad)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_CrearProducto", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Nombre", entidad.Nombre);
+                    command.Parameters.AddWithValue("@Descripcion", (object)entidad.Descripcion ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Precio", entidad.Precio);
+                    command.Parameters.AddWithValue("@Stock", entidad.Stock);
+
+                    // ExecuteScalarAsync devuelve el primer valor de la primera fila (el nuevo ID)
+                    var id = (int)await command.ExecuteScalarAsync();
+                    return id;
+                }
+            }
+        }
+
+        public async Task<bool> ActualizarAsync(Producto entidad)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ActualizarProducto", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", entidad.Id);
+                    command.Parameters.AddWithValue("@Nombre", entidad.Nombre);
+                    command.Parameters.AddWithValue("@Descripcion", (object)entidad.Descripcion ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Precio", entidad.Precio);
+                    command.Parameters.AddWithValue("@Stock", entidad.Stock);
+
+                    // ExecuteNonQueryAsync devuelve el número de filas afectadas
+                    var filasAfectadas = await command.ExecuteNonQueryAsync();
+                    return filasAfectadas > 0;
+                }
+            }
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_EliminarProducto", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    var filasAfectadas = await command.ExecuteNonQueryAsync();
+                    return filasAfectadas > 0;
+                }
+            }
+        }
+
         public Task<IEnumerable<Producto>> ObtenerProductosPorDebajoDeStockMinimoAsync(int stockMinimo) { throw new NotImplementedException(); }
     }
 }
