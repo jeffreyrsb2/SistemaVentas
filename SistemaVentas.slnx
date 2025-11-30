@@ -6,6 +6,8 @@
     <File Path="README.md" />
     <File Path="StoredProcedures.sql" />
   </Folder>
+  <Project Path="GeneradorDeHashes/GeneradorDeHashes.csproj" Id="35f89a7f-0e8e-43ff-b340-57d0da5ee201" />
+  <Project Path="GeneradorDeKeyJWT/GeneradorDeKeyJWT.csproj" Id="2f7a143a-b1b9-4154-93fc-929a690ce385" />
   <Project Path="SistemaVentas.Api/SistemaVentas.Api.csproj" />
   <Project Path="SistemaVentas.Aplicacion/SistemaVentas.Aplicacion.csproj" />
   <Project Path="SistemaVentas.Dominio/SistemaVentas.Dominio.csproj" />

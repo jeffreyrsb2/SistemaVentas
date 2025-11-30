@@ -81,10 +81,9 @@ INSERT INTO Roles (Nombre) VALUES ('Administrador'), ('Vendedor');
 GO
 
 -- Contraseña para ambos es "123". En el backend la hashearemos con BCrypt.
--- Este es el hash para "123": $2a$11$G.A.s.J0M3hJ.d6lRwB66e/Jd0/5T9.2j2.5Qz1n2pX.bU9.yY9lW
 INSERT INTO Usuarios (NombreUsuario, PasswordHash, RolId) VALUES 
-('admin', '$2a$11$G.A.s.J0M3hJ.d6lRwB66e/Jd0/5T9.2j2.5Qz1n2pX.bU9.yY9lW', 1),
-('vendedor1', '$2a$11$G.A.s.J0M3hJ.d6lRwB66e/Jd0/5T9.2j2.5Qz1n2pX.bU9.yY9lW', 2);
+('admin', '$2a$11$pRcOtVkXeAzeHsJiFdsxnelULBB.iSXGT8faSbjLyvl1J.Qd.4i5S', 1),
+('vendedor1', '$2a$11$pRcOtVkXeAzeHsJiFdsxnelULBB.iSXGT8faSbjLyvl1J.Qd.4i5S', 2);
 GO
 
 INSERT INTO Clientes (NombreCompleto, DocumentoIdentidad) VALUES

@@ -70,3 +70,15 @@ BEGIN
 END
 GO
 
+-- SP para obtener un usuario por su nombre de usuario
+CREATE OR ALTER PROCEDURE sp_ObtenerUsuarioPorNombre
+    @NombreUsuario NVARCHAR(100)
+AS
+BEGIN
+    -- También traemos el nombre del Rol para usarlo en el token
+    SELECT u.Id, u.NombreUsuario, u.PasswordHash, u.RolId, r.Nombre as RolNombre 
+    FROM Usuarios u
+    INNER JOIN Roles r ON u.RolId = r.Id
+    WHERE u.NombreUsuario = @NombreUsuario;
+END
+GO

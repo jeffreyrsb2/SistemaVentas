@@ -2,8 +2,12 @@
 
 namespace SistemaVentas.Dominio.Interfaces
 {
-    public interface IClienteRepository : IRepositorioGenerico<Cliente>
+    public interface IClienteRepository
     {
-        // Métodos específicos para clientes, si fueran necesarios
+        Task<Producto> ObtenerPorIdAsync(int id);
+        Task<IEnumerable<Producto>> ObtenerTodosAsync();
+        Task<int> CrearAsync(Producto entidad);
+        Task<bool> ActualizarAsync(Producto entidad);
+        Task<bool> EliminarAsync(int id);
     }
 }
