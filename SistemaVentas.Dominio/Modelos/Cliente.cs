@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public string NombreCompleto { get; set; }
         public string? DocumentoIdentidad { get; set; }
+        public bool Eliminado { get; set; }
     }
 }

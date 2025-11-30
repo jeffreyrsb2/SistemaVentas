@@ -38,7 +38,8 @@ GO
 CREATE TABLE Clientes (
     Id INT PRIMARY KEY IDENTITY,
     NombreCompleto NVARCHAR(200) NOT NULL,
-    DocumentoIdentidad NVARCHAR(20) UNIQUE
+    DocumentoIdentidad NVARCHAR(20) UNIQUE,
+    Eliminado BIT NOT NULL DEFAULT 0
 );
 GO
 
@@ -47,7 +48,8 @@ CREATE TABLE Productos (
     Nombre NVARCHAR(150) NOT NULL,
     Descripcion NVARCHAR(500),
     Precio DECIMAL(18, 2) NOT NULL,
-    Stock INT NOT NULL
+    Stock INT NOT NULL,
+    Eliminado BIT NOT NULL DEFAULT 0
 );
 GO
 

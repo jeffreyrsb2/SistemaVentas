@@ -5,7 +5,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_ObtenerProductos
 AS
 BEGIN
-    SELECT Id, Nombre, Descripcion, Precio, Stock FROM Productos;
+    SELECT Id, Nombre, Descripcion, Precio, Stock FROM Productos WHERE Eliminado = 0;
 END
 GO
 
@@ -14,7 +14,7 @@ CREATE OR ALTER PROCEDURE sp_ObtenerProductoPorId
     @Id INT
 AS
 BEGIN
-    SELECT Id, Nombre, Descripcion, Precio, Stock FROM Productos WHERE Id = @Id;
+    SELECT Id, Nombre, Descripcion, Precio, Stock FROM Productos WHERE Id = @Id AND Eliminado = 0;
 END
 GO
 
@@ -55,7 +55,7 @@ CREATE OR ALTER PROCEDURE sp_EliminarProducto
     @Id INT
 AS
 BEGIN
-    DELETE FROM Productos WHERE Id = @Id;
+    UPDATE Productos SET Eliminado = 1 WHERE Id = @Id;
 END
 GO
 
@@ -66,7 +66,7 @@ AS
 BEGIN
     SELECT Id, Nombre, Descripcion, Precio, Stock 
     FROM Productos 
-    WHERE Stock < @StockMinimo;
+    WHERE Stock < @StockMinimo AND Eliminado = 0;
 END
 GO
 
