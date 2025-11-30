@@ -1,6 +1,4 @@
-﻿const API_BASE_URL = 'https://localhost:7276';
-
-export async function obtenerProductos() {
+﻿export async function obtenerProductos() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/productos`);
         if (!response.ok) {
