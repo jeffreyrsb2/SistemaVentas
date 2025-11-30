@@ -36,5 +36,31 @@ namespace SistemaVentas.Api.Controllers
 
             return Ok(producto);
         }
+
+        // POST: api/productos
+        [HttpPost]
+        public async Task<ActionResult<ProductoDto>> PostProducto(UpsertProductoDto productoDto)
+        {
+            var nuevoProducto = await _productoService.CrearAsync(productoDto);
+            return CreatedAtAction(nameof(GetProducto), new { id = nuevoProducto.Id }, nuevoProducto);
+        }
+
+        // PUT: api/productos/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProducto(int id, UpsertProductoDto productoDto)
+        {
+            var resultado = await _productoService.ActualizarAsync(id, productoDto);
+            if (!resultado) return NotFound();
+            return NoContent();
+        }
+
+        // DELETE: api/productos/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProducto(int id)
+        {
+            var resultado = await _productoService.EliminarAsync(id);
+            if (!resultado) return NotFound();
+            return NoContent();
+        }
     }
 }

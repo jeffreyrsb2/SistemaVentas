@@ -58,3 +58,15 @@ BEGIN
     DELETE FROM Productos WHERE Id = @Id;
 END
 GO
+
+-- SP para obtener productos con stock menor a un valor dado
+CREATE OR ALTER PROCEDURE sp_ObtenerProductosBajoStock
+    @StockMinimo INT
+AS
+BEGIN
+    SELECT Id, Nombre, Descripcion, Precio, Stock 
+    FROM Productos 
+    WHERE Stock < @StockMinimo;
+END
+GO
+

@@ -6,6 +6,8 @@ namespace SistemaVentas.Aplicacion.Interfaces
     {
         Task<ProductoDto> ObtenerPorIdAsync(int id);
         Task<IEnumerable<ProductoDto>> ObtenerTodosAsync();
-        // TODO: métodos de escritura
+        Task<ProductoDto> CrearAsync(UpsertProductoDto productoDto);
+        Task<bool> ActualizarAsync(int id, UpsertProductoDto productoDto);
+        Task<bool> EliminarAsync(int id);
     }
 }

@@ -126,6 +126,33 @@ namespace SistemaVentas.Infraestructura.Repositorios
             }
         }
 
-        public Task<IEnumerable<Producto>> ObtenerProductosPorDebajoDeStockMinimoAsync(int stockMinimo) { throw new NotImplementedException(); }
+        public async Task<IEnumerable<Producto>> ObtenerProductosPorDebajoDeStockMinimoAsync(int stockMinimo)
+        {
+            var productos = new List<Producto>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ObtenerProductosBajoStock", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@StockMinimo", stockMinimo);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            productos.Add(new Producto
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                                Descripcion = reader.IsDBNull(reader.GetOrdinal("Descripcion")) ? null : reader.GetString(reader.GetOrdinal("Descripcion")),
+                                Precio = reader.GetDecimal(reader.GetOrdinal("Precio")),
+                                Stock = reader.GetInt32(reader.GetOrdinal("Stock"))
+                            });
+                        }
+                    }
+                }
+            }
+            return productos;
+        }
     }
 }

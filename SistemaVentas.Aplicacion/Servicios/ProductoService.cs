@@ -1,6 +1,7 @@
 ﻿using SistemaVentas.Aplicacion.DTOs;
 using SistemaVentas.Aplicacion.Interfaces;
 using SistemaVentas.Dominio.Interfaces;
+using SistemaVentas.Dominio.Modelos;
 
 namespace SistemaVentas.Aplicacion.Servicios
 {
@@ -43,6 +44,46 @@ namespace SistemaVentas.Aplicacion.Servicios
                 Precio = p.Precio,
                 Stock = p.Stock
             });
+        }
+
+        public async Task<ProductoDto> CrearAsync(UpsertProductoDto productoDto)
+        {
+            var nuevoProducto = new Producto
+            {
+                Nombre = productoDto.Nombre,
+                Descripcion = productoDto.Descripcion,
+                Precio = productoDto.Precio,
+                Stock = productoDto.Stock
+            };
+            var nuevoId = await _productoRepository.CrearAsync(nuevoProducto);
+
+            // Devolvemos el objeto completo que se creó
+            var productoCreado = await _productoRepository.ObtenerPorIdAsync(nuevoId);
+            return new ProductoDto {
+                Id = productoCreado.Id,
+                Nombre = productoCreado.Nombre,
+                Descripcion = productoCreado.Descripcion,
+                Precio = productoCreado.Precio,
+                Stock = productoCreado.Stock
+            };
+        }
+
+        public async Task<bool> ActualizarAsync(int id, UpsertProductoDto productoDto)
+        {
+            var productoExistente = await _productoRepository.ObtenerPorIdAsync(id);
+            if (productoExistente == null) return false;
+
+            productoExistente.Nombre = productoDto.Nombre;
+            productoExistente.Descripcion = productoDto.Descripcion;
+            productoExistente.Precio = productoDto.Precio;
+            productoExistente.Stock = productoDto.Stock;
+
+            return await _productoRepository.ActualizarAsync(productoExistente);
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            return await _productoRepository.EliminarAsync(id);
         }
     }
 }

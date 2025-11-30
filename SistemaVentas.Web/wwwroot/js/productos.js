@@ -21,8 +21,11 @@ $(document).ready(function () {
             { "data": "stock" },
             {
                 "data": "id",
-                "render": function (data) {
-                    return `<button class="btn btn-sm btn-info">Editar</button> <button class="btn btn-sm btn-danger">Eliminar</button>`;
+                "render": function (data, type, row) {
+                    // 'data' contiene el valor de "data", es decir, el 'id'.
+                    // 'row' contiene el objeto completo del producto para esa fila.
+                    return `<button class="btn btn-sm btn-info btn-editar" data-id="${data}">Editar</button>
+                            <button class="btn btn-sm btn-danger btn-eliminar" data-id="${data}">Eliminar</button>`;
                 },
                 "orderable": false
             }
