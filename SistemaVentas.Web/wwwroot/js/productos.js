@@ -1,32 +1,40 @@
 ﻿(function (app) {
+    // Variable global dentro de este script para acceder a la instancia de DataTable
     let tablaProductos;
 
-    // Función para recargar la tabla
+    // Función para recargar la tabla de forma asíncrona
     function recargarTabla() {
-        tablaProductos.ajax.reload(null, false); // 'false' para mantener la paginación actual
+        if (tablaProductos) {
+            tablaProductos.ajax.reload(null, false); // 'false' para que no resetee la paginación
+        }
     }
 
-    // Función para limpiar el formulario de la modal
+    // Función para limpiar el formulario de la modal y resetear su estado
     function limpiarModal() {
-        $('#form-producto').trigger("reset");
-        $('#productoId').val(''); // Nos aseguramos de limpiar el ID oculto
-        $('#productoModalLabel').text('Nuevo Producto');
+        $('#form-producto').trigger("reset"); // Limpia todos los inputs del formulario
+        $('#productoId').val(''); // Se asegura de que el ID oculto esté vacío
+        $('#productoModalLabel').text('Nuevo Producto'); // Resetea el título
     }
 
+    // El código se ejecuta cuando el DOM está completamente cargado
     $(document).ready(function () {
+        // Verificación de seguridad: si los servicios no se cargaron, no hace nada.
         if (!app.services || !app.services.productos) {
-            console.error("Error crítico: los servicios no están cargados.");
+            console.error("Error crítico: el servicio de productos no está cargado. Asegúrate de que los scripts estén en el orden correcto en _Layout.cshtml.");
             return;
         }
 
+        // Inicialización de la DataTable
         tablaProductos = $('#tabla-productos').DataTable({
             "ajax": function (data, callback, settings) {
                 app.services.productos.obtenerTodos()
-                    .then(productos => callback({ data: productos }))
+                    .then(productos => {
+                        callback({ data: productos });
+                    })
                     .catch(error => {
                         console.error("Error al cargar datos en DataTable:", error);
-                        callback({ data: [] });
-                        alert("No se pudieron cargar los productos.");
+                        alert("No se pudieron cargar los productos. La sesión puede haber expirado.");
+                        callback({ data: [] }); // Devuelve data vacía para que la tabla no se rompa
                     });
             },
             "columns": [
@@ -49,13 +57,13 @@
 
         // --- MANEJO DE EVENTOS ---
 
-        // Botón "Nuevo Producto"
+        // Evento para el botón principal "Nuevo Producto"
         $('#btn-nuevo').on('click', function () {
             limpiarModal();
             $('#productoModal').modal('show');
         });
 
-        // Botones "Editar" en la tabla (delegación de eventos)
+        // Evento para los botones "Editar" (usando delegación de eventos en el tbody)
         $('#tabla-productos tbody').on('click', '.btn-editar', async function () {
             const id = $(this).data('id');
             limpiarModal();
@@ -74,7 +82,7 @@
             }
         });
 
-        // Botón "Guardar" en la modal
+        // Evento para el botón "Guardar" dentro de la modal
         $('#btn-guardar').on('click', async function () {
             const id = $('#productoId').val();
             const esEdicion = id !== '';
@@ -86,7 +94,11 @@
                 stock: parseInt($('#stock').val())
             };
 
-            // TODO: Añadir validación del formulario
+            // Aquí iría una validación más robusta del formulario si tuviéramos tiempo
+            if (!productoData.nombre || productoData.precio <= 0 || productoData.stock < 0) {
+                alert("Por favor, complete los campos correctamente.");
+                return;
+            }
 
             try {
                 if (esEdicion) {
@@ -101,7 +113,7 @@
             }
         });
 
-        // Botones "Eliminar" en la tabla (delegación de eventos)
+        // Evento para los botones "Eliminar" (usando delegación de eventos)
         $('#tabla-productos tbody').on('click', '.btn-eliminar', async function () {
             const id = $(this).data('id');
             if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {

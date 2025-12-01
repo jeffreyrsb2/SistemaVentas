@@ -22,10 +22,15 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Ventas">Ventas</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" id="btn-logout">Cerrar Sesión</a>
                         </li>
                     </ul>
                 </div>
@@ -61,6 +66,8 @@
 
     <!-- 4. Los servicios específicos que dependen del genérico -->
     <script src="~/js/services/productoService.js" asp-append-version="true"></script>
+    <script src="~/js/services/clienteService.js" asp-append-version="true"></script>
+    <script src="~/js/services/ventaService.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
