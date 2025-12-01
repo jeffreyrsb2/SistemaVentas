@@ -1,33 +1,19 @@
 ﻿(function (app) {
-    function getAuthHeaders() {
-        const token = sessionStorage.getItem('jwtToken');
-        if (!token) {
-            // Si no hay token, redirigimos a login, la única excepción es la propia página de login
-            if (!window.location.pathname.toLowerCase().includes('/login')) {
-                window.location.href = '/login';
-            }
-            return { 'Content-Type': 'application/json' };
-        }
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+    // Verificamos que el servicio genérico de API exista
+    if (!app.services || !app.services.api) {
+        console.error("Error: apiService.js debe cargarse antes que productoService.js");
+        return;
     }
 
-    async function obtenerProductos() {
-        const response = await fetch(`${app.config.API_BASE_URL}/api/productos`, { headers: getAuthHeaders() });
-        if (response.status === 401) {
-            sessionStorage.removeItem('jwtToken');
-            window.location.href = '/login';
-            throw new Error('Sesión inválida o expirada.');
-        }
-        if (!response.ok) throw new Error('Error al obtener productos');
-        return await response.json();
-    }
+    const api = app.services.api;
 
-    // "Adjuntamos" la función al namespace global de servicios
+    // "Adjuntamos" las funciones específicas de productos
     app.services.productos = {
-        obtenerTodos: obtenerProductos
+        obtenerTodos: () => api.get('/api/productos'),
+        obtenerPorId: (id) => api.get(`/api/productos/${id}`),
+        crear: (productoData) => api.post('/api/productos', productoData),
+        actualizar: (id, productoData) => api.put(`/api/productos/${id}`, productoData),
+        eliminar: (id) => api.delete(`/api/productos/${id}`)
     };
 
 })(window.app);

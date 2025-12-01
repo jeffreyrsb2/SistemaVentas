@@ -49,14 +49,17 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
-    <!-- Configuración y autenticación -->
+    <!-- Configuración, autenticación y servicios -->
     <!-- 1. El script principal que crea el objeto 'app' -->
     <script src="~/js/app.js" asp-append-version="true"></script>
 
-    <!-- 2. El script de autenticación que depende de 'app' -->
+    <!-- 2. El script de autenticación -->
     <script src="~/js/auth.js" asp-append-version="true"></script>
 
-    <!-- 3. Los servicios que se "adjuntan" a 'app.services' -->
+    <!-- 3. El servicio genérico de API -->
+    <script src="~/js/services/apiService.js" asp-append-version="true"></script>
+
+    <!-- 4. Los servicios específicos que dependen del genérico -->
     <script src="~/js/services/productoService.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
