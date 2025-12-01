@@ -1,17 +1,50 @@
 ﻿(function (app) {
     let productosDisponibles = [];
-    let detalleVenta = []; // Array para guardar los items del carrito
+    let detalleVenta = [];
+    let ventaId = null;
 
     async function inicializar() {
-        // Cargar clientes y productos en los dropdowns
-        const clientes = await app.services.clientes.obtenerTodos();
+        // Obtenemos el ID de la venta desde la URL
+        const params = new URLSearchParams(window.location.search);
+        ventaId = parseInt(params.get('id'));
+        if (!ventaId) {
+            alert('ID de venta no válido.');
+            window.location.href = '/Ventas';
+            return;
+        }
+
+        // Cargamos todos los datos necesarios en paralelo
+        const [venta, clientes, productos] = await Promise.all([
+            app.services.ventas.obtenerPorId(ventaId),
+            app.services.clientes.obtenerTodos(),
+            app.services.productos.obtenerTodos()
+        ]);
+
+        productosDisponibles = productos;
+
+        // Llenar dropdown de clientes y seleccionar el correcto
         const selectCliente = $('#select-cliente');
         clientes.forEach(c => selectCliente.append(new Option(c.nombreCompleto, c.id)));
+        selectCliente.val(venta.clienteId);
 
-        productosDisponibles = await app.services.productos.obtenerTodos();
+        // Llenar dropdown de productos
         const selectProducto = $('#select-producto');
         selectProducto.append(new Option("Seleccione un producto...", ""));
         productosDisponibles.forEach(p => selectProducto.append(new Option(`${p.nombre} (Stock: ${p.stock})`, p.id)));
+
+        // Llenar el detalle de la venta con los datos existentes
+        detalleVenta = venta.detalles.map(d => {
+            const producto = productosDisponibles.find(p => p.id === d.productoId);
+            return {
+                productoId: d.productoId,
+                nombreProducto: d.productoNombre,
+                cantidad: d.cantidad,
+                precioUnitario: d.precioUnitario,
+                stock: producto ? producto.stock + d.cantidad : d.cantidad // Stock actual + lo que se vendió
+            };
+        });
+
+        renderizarDetalle();
     }
 
     function renderizarDetalle() {
@@ -23,7 +56,7 @@
             total += subtotal;
             tbody.append(`
                 <tr>
-                    <td>${item.nombreProducto} (Stock: ${item.stock})</td>
+                    <td>${item.nombreProducto} (Stock Disp: ${item.stock})</td>
                     <td><input type="number" class="form-control form-control-sm item-cantidad" value="${item.cantidad}" min="1" max="${item.stock}" data-index="${index}"></td>
                     <td>S/ ${item.precioUnitario.toFixed(2)}</td>
                     <td>S/ ${subtotal.toFixed(2)}</td>
@@ -53,7 +86,7 @@
                     nombreProducto: producto.nombre,
                     cantidad: 1,
                     precioUnitario: producto.precio,
-                    stock: producto.stock // Guardamos el stock
+                    stock: producto.stock
                 });
             }
             renderizarDetalle();
@@ -61,7 +94,6 @@
         $(this).val("");
     });
 
-    // Evento para cuando se cambia la cantidad en un input
     $('#tabla-detalle-venta').on('change', '.item-cantidad', function () {
         const index = $(this).data('index');
         let nuevaCantidad = parseInt($(this).val());
@@ -78,7 +110,7 @@
         }
 
         item.cantidad = nuevaCantidad;
-        renderizarDetalle(); // Re-renderizar todo para actualizar subtotales y total
+        renderizarDetalle();
     });
 
     $('#tabla-detalle-venta').on('click', '.btn-quitar', function () {
@@ -89,7 +121,7 @@
 
     $('#btn-registrar-venta').on('click', async function () {
         if (detalleVenta.length === 0) {
-            alert("Debe añadir al menos un producto a la venta.");
+            alert("Debe haber al menos un producto.");
             return;
         }
         const ventaData = {
@@ -99,13 +131,12 @@
                 cantidad: item.cantidad
             }))
         };
-
         try {
-            await app.services.ventas.crear(ventaData);
-            alert("Venta registrada exitosamente");
+            await app.services.ventas.actualizar(ventaId, ventaData);
+            alert("Venta actualizada exitosamente");
             window.location.href = '/Ventas';
         } catch (error) {
-            alert(`Error al registrar la venta: ${error.message}`);
+            alert(`Error al actualizar la venta: ${error.message}`);
         }
     });
 

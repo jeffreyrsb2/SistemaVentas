@@ -27,7 +27,7 @@
                 {
                     "data": "fechaVenta",
                     "render": function (data) {
-                        return new Date(data).toLocaleString('es-PE'); // Formato localizado
+                        return new Date(data).toLocaleString('es-PE');
                     }
                 },
                 { "data": "clienteNombre" },
@@ -36,8 +36,9 @@
                 {
                     "data": "id",
                     "render": function (data) {
-                        // Añadimos la clase .btn-anular
-                        return `<button class="btn btn-sm btn-info btn-detalle" data-id="${data}">Ver Detalle</button>
+                        // Creamos un enlace '<a>' para Editar y los botones para Detalle y Anular
+                        return `<a href="/EditarVenta?id=${data}" class="btn btn-sm btn-info">Editar</a>
+                                <button class="btn btn-sm btn-secondary btn-detalle" data-id="${data}">Ver Detalle</button>
                                 <button class="btn btn-sm btn-danger btn-anular" data-id="${data}">Anular</button>`;
                     },
                     "orderable": false
