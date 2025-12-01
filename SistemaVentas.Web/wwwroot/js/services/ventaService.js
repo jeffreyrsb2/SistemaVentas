@@ -7,7 +7,8 @@
 
     app.services.ventas = {
         obtenerTodas: () => api.get('/api/ventas'),
-        crear: (ventaData) => api.post('/api/ventas', ventaData)
-        // TODO: Aquí irían los demás métodos del CRUD de ventas
+        obtenerPorId: (id) => api.get(`/api/ventas/${id}`),
+        crear: (ventaData) => api.post('/api/ventas', ventaData),
+        anular: (id) => api.delete(`/api/ventas/${id}`)
     };
 })(window.app);

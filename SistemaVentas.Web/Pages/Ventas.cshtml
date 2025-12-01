@@ -21,6 +21,41 @@
         </tr>
     </thead>
 </table>
+
+<!-- Modal para Ver Detalle de Venta -->
+<div class="modal fade" id="detalleVentaModal" tabindex="-1" aria-labelledby="detalleVentaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleVentaModalLabel">Detalle de Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalle-venta-info" class="mb-3">
+                    <!-- La información de la cabecera de la venta irá aquí -->
+                </div>
+                <h5>Productos</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-productos-vendidos">
+                        <!-- Los productos de la venta irán aquí -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/services/ventaService.js" asp-append-version="true"></script>
     <script src="~/js/ventas.js" asp-append-version="true"></script>
