@@ -75,7 +75,12 @@
                         </tr>
                     `;
                 });
+
+                // 1. Llenamos el CUERPO de la tabla
                 $('#tabla-productos-vendidos').html(detallesHtml);
+
+                // 2. Llenamos el PIE de la tabla por separado
+                $('#modal-venta-total').text(`S/ ${venta.total.toFixed(2)}`);
 
                 $('#detalleVentaModal').modal('show');
             } catch (error) {
