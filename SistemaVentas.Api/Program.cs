@@ -59,6 +59,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IProductoRepository>(provider => new ProductoRepository(connectionString));
 // Registramos los Servicios (Capa Aplicación)
 builder.Services.AddScoped<IProductoService, ProductoService>();
+// Registramos los Repositorios y Servicios de Ventas
+builder.Services.AddScoped<IVentaRepository>(provider => new VentaRepository(connectionString));
+builder.Services.AddScoped<IVentaService, VentaService>();
+// Registramos los Repositorios y Servicios de Clientes
+builder.Services.AddScoped<IClienteRepository>(provider => new ClienteRepository(connectionString));
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -24,8 +24,9 @@ namespace SistemaVentas.Aplicacion.Servicios
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, usuario.NombreUsuario),
-                new Claim(ClaimTypes.Role, usuario.RolNombre)
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()), // El ID del usuario
+                new Claim(JwtRegisteredClaimNames.Name, usuario.NombreUsuario), // El nombre de usuario
+                new Claim(ClaimTypes.Role, usuario.RolNombre) // El rol
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

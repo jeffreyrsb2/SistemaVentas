@@ -82,3 +82,89 @@ BEGIN
     WHERE u.NombreUsuario = @NombreUsuario;
 END
 GO
+
+-- Tipo de tabla que usará el SP de CrearVenta para el parámetro de detalles
+IF NOT EXISTS (SELECT * FROM sys.types WHERE is_table_type = 1 AND name = 'DetalleVentaType')
+BEGIN
+    CREATE TYPE dbo.DetalleVentaType AS TABLE
+    (
+        ProductoId INT,
+        Cantidad INT,
+        PrecioUnitario DECIMAL(18, 2)
+    );
+END
+GO
+
+-- SP para crear una Venta y sus Detalles en una transacción
+CREATE OR ALTER PROCEDURE sp_CrearVenta
+    @UsuarioId INT,
+    @ClienteId INT,
+    @Total DECIMAL(18, 2),
+    @Detalles AS dbo.DetalleVentaType READONLY -- Usaremos un Tipo de Tabla
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        -- Insertar la cabecera de la venta
+        INSERT INTO Ventas (UsuarioId, ClienteId, Total, FechaVenta)
+        VALUES (@UsuarioId, @ClienteId, @Total, GETDATE());
+
+        DECLARE @VentaId INT = SCOPE_IDENTITY();
+
+        -- Insertar los detalles
+        INSERT INTO DetalleVentas (VentaId, ProductoId, Cantidad, PrecioUnitario)
+        SELECT @VentaId, ProductoId, Cantidad, PrecioUnitario FROM @Detalles;
+
+        -- Actualizar el stock de los productos
+        UPDATE p
+        SET p.Stock = p.Stock - d.Cantidad
+        FROM Productos p
+        INNER JOIN @Detalles d ON p.Id = d.ProductoId;
+
+        COMMIT TRANSACTION;
+        SELECT @VentaId AS VentaId; -- Devolver el ID de la nueva venta
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        -- Relanzar el error para que la aplicación lo capture
+        THROW;
+    END CATCH
+END
+GO
+
+-- SP para listar todas las ventas con nombres de cliente y usuario
+CREATE OR ALTER PROCEDURE sp_ObtenerVentas
+AS
+BEGIN
+    SELECT 
+        v.Id, 
+        v.FechaVenta, 
+        v.Total, 
+        c.NombreCompleto AS ClienteNombre, 
+        u.NombreUsuario AS UsuarioNombre
+    FROM Ventas v
+    INNER JOIN Clientes c ON v.ClienteId = c.Id
+    INNER JOIN Usuarios u ON v.UsuarioId = u.Id
+    ORDER BY v.FechaVenta DESC;
+END
+GO
+
+-- SP para obtener los detalles de una venta por su ID
+CREATE OR ALTER PROCEDURE sp_ObtenerClientes
+AS
+BEGIN
+    SELECT Id, NombreCompleto, DocumentoIdentidad FROM Clientes WHERE Eliminado = 0;
+END
+GO
+
+-- SP para obtener un cliente por su ID
+CREATE OR ALTER PROCEDURE sp_ObtenerClientePorId
+    @Id INT
+AS
+BEGIN
+    SELECT Id, NombreCompleto, DocumentoIdentidad FROM Clientes WHERE Id = @Id AND Eliminado = 0;
+END
+GO
+-- TODO: Crear, Actualizar, Eliminar para Clientes
