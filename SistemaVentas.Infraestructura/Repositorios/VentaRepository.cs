@@ -69,5 +69,66 @@ namespace SistemaVentas.Infraestructura.Repositorios
             }
             return ventas;
         }
+
+        public async Task<Venta?> ObtenerPorIdAsync(int id)
+        {
+            Venta venta = null;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ObtenerVentaPorId", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@VentaId", id);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        // Leer el primer resultado (la cabecera de la venta)
+                        if (await reader.ReadAsync())
+                        {
+                            venta = new Venta
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                FechaVenta = reader.GetDateTime(reader.GetOrdinal("FechaVenta")),
+                                Total = reader.GetDecimal(reader.GetOrdinal("Total")),
+                                ClienteId = reader.GetInt32(reader.GetOrdinal("ClienteId")),
+                                UsuarioId = reader.GetInt32(reader.GetOrdinal("UsuarioId"))
+                            };
+                        }
+
+                        // Avanzar al segundo resultado (los detalles)
+                        if (venta != null && await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                venta.Detalles.Add(new DetalleVenta
+                                {
+                                    ProductoId = reader.GetInt32(reader.GetOrdinal("ProductoId")),
+                                    Cantidad = reader.GetInt32(reader.GetOrdinal("Cantidad")),
+                                    PrecioUnitario = reader.GetDecimal(reader.GetOrdinal("PrecioUnitario")),
+                                    // Nota: El ProductoNombre lo ignoramos aquí, lo usará el Service.
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return venta;
+        }
+
+        public async Task<bool> AnularAsync(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_AnularVenta", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@VentaId", id);
+                    var filasAfectadas = await command.ExecuteNonQueryAsync();
+                    return filasAfectadas > 0;
+                }
+            }
+        }
     }
 }

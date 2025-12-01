@@ -37,4 +37,22 @@ public class VentasController : ControllerBase
         var ventas = await _ventaService.ObtenerTodasAsync();
         return Ok(ventas);
     }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<ActionResult<VentaDetalleResponseDto>> GetVenta(int id)
+    {
+        var venta = await _ventaService.ObtenerPorIdAsync(id);
+        if (venta == null) return NotFound();
+        return Ok(venta);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> AnularVenta(int id)
+    {
+        var resultado = await _ventaService.AnularAsync(id);
+        if (!resultado) return NotFound();
+        return NoContent();
+    }
 }

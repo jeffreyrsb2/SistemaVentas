@@ -149,7 +149,7 @@ BEGIN
     FROM Ventas v
     INNER JOIN Clientes c ON v.ClienteId = c.Id
     INNER JOIN Usuarios u ON v.UsuarioId = u.Id
-    ORDER BY v.FechaVenta DESC;
+    WHERE v.Eliminado = 0 ORDER BY v.FechaVenta DESC;
 END
 GO
 
@@ -179,5 +179,56 @@ BEGIN
     FROM Usuarios u
     INNER JOIN Roles r ON u.RolId = r.Id
     WHERE u.Id = @Id;
+END
+GO
+
+-- SP para obtener una venta específica con sus detalles por su ID
+CREATE OR ALTER PROCEDURE sp_ObtenerVentaPorId
+    @VentaId INT
+AS
+BEGIN
+    -- Primero, la cabecera
+    SELECT 
+        v.Id, v.FechaVenta, v.Total, v.ClienteId, v.UsuarioId,
+        c.NombreCompleto AS ClienteNombre, 
+        u.NombreUsuario AS UsuarioNombre
+    FROM Ventas v
+    INNER JOIN Clientes c ON v.ClienteId = c.Id
+    INNER JOIN Usuarios u ON v.UsuarioId = u.Id
+    WHERE v.Id = @VentaId AND v.Eliminado = 0;
+
+    -- Segundo, los detalles
+    SELECT 
+        d.ProductoId, d.Cantidad, d.PrecioUnitario,
+        p.Nombre AS ProductoNombre
+    FROM DetalleVentas d
+    INNER JOIN Productos p ON d.ProductoId = p.Id
+    WHERE d.VentaId = @VentaId;
+END
+GO
+
+-- SP para anular (eliminar lógicamente) una venta
+CREATE OR ALTER PROCEDURE sp_AnularVenta
+    @VentaId INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Marcar la venta como eliminada
+        UPDATE Ventas SET Eliminado = 1 WHERE Id = @VentaId;
+
+        -- Devolver el stock a los productos
+        UPDATE p
+        SET p.Stock = p.Stock + d.Cantidad
+        FROM Productos p
+        INNER JOIN DetalleVentas d ON p.Id = d.ProductoId
+        WHERE d.VentaId = @VentaId;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
 END
 GO

@@ -6,5 +6,7 @@ namespace SistemaVentas.Aplicacion.Interfaces
     {
         Task<VentaResponseDto> CrearVentaAsync(VentaRequestDto ventaDto, string usuarioId);
         Task<IEnumerable<VentaResponseDto>> ObtenerTodasAsync();
+        Task<VentaDetalleResponseDto?> ObtenerPorIdAsync(int id);
+        Task<bool> AnularAsync(int id);
     }
 }

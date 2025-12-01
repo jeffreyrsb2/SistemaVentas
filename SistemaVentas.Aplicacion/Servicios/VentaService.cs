@@ -70,15 +70,15 @@ public class VentaService : IVentaService
 
     public async Task<IEnumerable<VentaResponseDto>> ObtenerTodasAsync()
     {
-        // Esto es ineficiente y es un ejemplo de "N+1 query problem"
-        // pero demuestra la separación de capas.
-        // En un escenario real, usaríamos joins o consultas optimizadas.
+        // Esta implementación es ineficiente (N+1), pero funciona para la demo.
+        // En un escenario real, optimizaríamos esto en el repositorio.
         var ventas = await _ventaRepository.ObtenerTodasAsync();
         var dtos = new List<VentaResponseDto>();
 
+        // Esto necesita que el sp_ObtenerVentas devuelva los IDs de cliente y usuario,
+        // y que el VentaRepository los mapee.
         foreach (var venta in ventas)
         {
-            // Por cada venta, hacemos 2 llamadas más a la BD para obtener los nombres.
             var cliente = await _clienteRepository.ObtenerPorIdAsync(venta.ClienteId);
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(venta.UsuarioId);
 
@@ -92,5 +92,46 @@ public class VentaService : IVentaService
             });
         }
         return dtos;
+    }
+
+    public async Task<VentaDetalleResponseDto?> ObtenerPorIdAsync(int id)
+    {
+        var venta = await _ventaRepository.ObtenerPorIdAsync(id);
+        if (venta == null) return null;
+
+        // Hacemos las llamadas adicionales para obtener los nombres
+        var cliente = await _clienteRepository.ObtenerPorIdAsync(venta.ClienteId);
+        var usuario = await _usuarioRepository.ObtenerPorIdAsync(venta.UsuarioId);
+
+        // Mapeamos la entidad a nuestro DTO de respuesta detallado
+        var dto = new VentaDetalleResponseDto
+        {
+            Id = venta.Id,
+            FechaVenta = venta.FechaVenta,
+            Total = venta.Total,
+            ClienteNombre = cliente?.NombreCompleto,
+            UsuarioNombre = usuario?.NombreUsuario,
+            Detalles = new List<DetalleVentaDto>()
+        };
+
+        foreach (var detalle in venta.Detalles)
+        {
+            var producto = await _productoRepository.ObtenerPorIdAsync(detalle.ProductoId);
+            dto.Detalles.Add(new DetalleVentaDto
+            {
+                ProductoId = detalle.ProductoId,
+                ProductoNombre = producto?.Nombre,
+                Cantidad = detalle.Cantidad,
+                PrecioUnitario = detalle.PrecioUnitario
+            });
+        }
+
+        return dto;
+    }
+
+    public async Task<bool> AnularAsync(int id)
+    {
+        // Este método simplemente pasa la llamada al repositorio
+        return await _ventaRepository.AnularAsync(id);
     }
 }

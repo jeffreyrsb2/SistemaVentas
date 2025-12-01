@@ -6,5 +6,7 @@ namespace SistemaVentas.Dominio.Interfaces
     {
         Task<int> CrearAsync(Venta venta);
         Task<IEnumerable<Venta>> ObtenerTodasAsync();
+        Task<Venta?> ObtenerPorIdAsync(int id);
+        Task<bool> AnularAsync(int id);
     }
 }

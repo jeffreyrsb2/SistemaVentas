@@ -59,6 +59,7 @@ CREATE TABLE Ventas (
     Total DECIMAL(18, 2) NOT NULL,
     UsuarioId INT NOT NULL,
     ClienteId INT NOT NULL,
+    Eliminado BIT NOT NULL DEFAULT 0,
     CONSTRAINT FK_Ventas_Usuarios FOREIGN KEY (UsuarioId) REFERENCES Usuarios(Id),
     CONSTRAINT FK_Ventas_Clientes FOREIGN KEY (ClienteId) REFERENCES Clientes(Id)
 );
