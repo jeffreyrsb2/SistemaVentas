@@ -1,7 +1,7 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using SistemaVentas.Dominio.Interfaces;
+﻿using SistemaVentas.Dominio.Interfaces;
 using SistemaVentas.Dominio.Modelos;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace SistemaVentas.Infraestructura.Repositorios
 {
@@ -9,9 +9,8 @@ namespace SistemaVentas.Infraestructura.Repositorios
     {
         public VentaRepository(string connectionString) : base(connectionString) { }
 
-        public async Task<Venta> CrearAsync(Venta venta)
+        public async Task<int> CrearAsync(Venta venta)
         {
-            // Creamos un DataTable en memoria que coincide con nuestro TYPE de SQL
             var detallesTable = new DataTable();
             detallesTable.Columns.Add("ProductoId", typeof(int));
             detallesTable.Columns.Add("Cantidad", typeof(int));
@@ -32,21 +31,43 @@ namespace SistemaVentas.Infraestructura.Repositorios
                     command.Parameters.AddWithValue("@ClienteId", venta.ClienteId);
                     command.Parameters.AddWithValue("@Total", venta.Total);
 
-                    // Pasamos el DataTable como un parámetro especial
                     var detallesParam = command.Parameters.AddWithValue("@Detalles", detallesTable);
                     detallesParam.SqlDbType = SqlDbType.Structured;
                     detallesParam.TypeName = "dbo.DetalleVentaType";
 
-                    // El SP devuelve el ID de la nueva venta
+                    // El SP devuelve el ID
                     var nuevaVentaId = (int)await command.ExecuteScalarAsync();
-                    venta.Id = nuevaVentaId;
-                    return venta;
+                    return nuevaVentaId;
                 }
             }
         }
 
-        // TODO:El resto de los métodos por ahora
-        public Task<Venta?> ObtenerPorIdConDetallesAsync(int id) => throw new NotImplementedException();
-        public Task<IEnumerable<Venta>> ObtenerTodasConDetallesAsync() => throw new NotImplementedException();
+        public async Task<IEnumerable<Venta>> ObtenerTodasAsync()
+        {
+            var ventas = new List<Venta>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ObtenerVentas", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            ventas.Add(new Venta
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                FechaVenta = reader.GetDateTime(reader.GetOrdinal("FechaVenta")),
+                                Total = reader.GetDecimal(reader.GetOrdinal("Total")),
+                                ClienteId = reader.GetInt32(reader.GetOrdinal("ClienteId")),
+                                UsuarioId = reader.GetInt32(reader.GetOrdinal("UsuarioId"))
+                            });
+                        }
+                    }
+                }
+            }
+            return ventas;
+        }
     }
 }

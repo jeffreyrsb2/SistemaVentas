@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 Console.WriteLine("Generador de Clave Secreta para JWT");
 Console.WriteLine("-----------------------------------");

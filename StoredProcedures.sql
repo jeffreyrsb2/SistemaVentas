@@ -142,6 +142,8 @@ BEGIN
         v.Id, 
         v.FechaVenta, 
         v.Total, 
+        v.ClienteId, 
+        v.UsuarioId, 
         c.NombreCompleto AS ClienteNombre, 
         u.NombreUsuario AS UsuarioNombre
     FROM Ventas v
@@ -167,4 +169,15 @@ BEGIN
     SELECT Id, NombreCompleto, DocumentoIdentidad FROM Clientes WHERE Id = @Id AND Eliminado = 0;
 END
 GO
--- TODO: Crear, Actualizar, Eliminar para Clientes
+
+-- SP para obtener un usuario por su ID
+CREATE OR ALTER PROCEDURE sp_ObtenerUsuarioPorId
+    @Id INT
+AS
+BEGIN
+    SELECT u.Id, u.NombreUsuario, u.PasswordHash, u.RolId, r.Nombre as RolNombre 
+    FROM Usuarios u
+    INNER JOIN Roles r ON u.RolId = r.Id
+    WHERE u.Id = @Id;
+END
+GO

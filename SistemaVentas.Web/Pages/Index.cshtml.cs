@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using static System.Collections.Specialized.BitVector32;
 
 namespace SistemaVentas.Web.Pages
 {

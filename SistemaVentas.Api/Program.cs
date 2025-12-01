@@ -14,8 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Obtenemos la cadena de conexión desde appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // Definimos CORS hacia el front-end
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowWebApp", policy => {
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWebApp", policy =>
+    {
         policy.WithOrigins("https://localhost:7082")
               .AllowAnyHeader()
               .AllowAnyMethod();

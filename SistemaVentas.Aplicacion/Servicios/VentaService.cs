@@ -7,20 +7,27 @@ public class VentaService : IVentaService
 {
     private readonly IVentaRepository _ventaRepository;
     private readonly IProductoRepository _productoRepository;
-    // TODO: Asumimos que también tenemos un IClienteRepository
-    // private readonly IClienteRepository _clienteRepository;
+    private readonly IClienteRepository _clienteRepository;
+    private readonly IUsuarioRepository _usuarioRepository;
 
-    public VentaService(IVentaRepository ventaRepository, IProductoRepository productoRepository)
+    public VentaService(
+        IVentaRepository ventaRepository,
+        IProductoRepository productoRepository,
+        IClienteRepository clienteRepository,
+        IUsuarioRepository usuarioRepository)
     {
         _ventaRepository = ventaRepository;
         _productoRepository = productoRepository;
+        _clienteRepository = clienteRepository;
+        _usuarioRepository = usuarioRepository;
     }
 
-    public async Task<VentaResponseDto> CrearVentaAsync(VentaRequestDto ventaDto, int usuarioId)
+    public async Task<VentaResponseDto> CrearVentaAsync(VentaRequestDto ventaDto, string usuarioId)
     {
         // --- Lógica de Negocio ---
         decimal totalVenta = 0;
         var detallesVenta = new List<DetalleVenta>();
+        var idUsuario = int.Parse(usuarioId);
 
         foreach (var item in ventaDto.Detalles)
         {
@@ -39,14 +46,51 @@ public class VentaService : IVentaService
 
         var nuevaVenta = new Venta
         {
-            UsuarioId = usuarioId,
+            UsuarioId = idUsuario,
             ClienteId = ventaDto.ClienteId,
             Total = totalVenta,
             Detalles = detallesVenta
         };
 
-        var ventaCreada = await _ventaRepository.CrearAsync(nuevaVenta);
+        var ventaCreadaId = await _ventaRepository.CrearAsync(nuevaVenta);
 
-        return new VentaResponseDto { Id = ventaCreada.Id, Total = ventaCreada.Total, FechaVenta = ventaCreada.FechaVenta };
+        // Para devolver una respuesta completa, buscamos los datos recién creados
+        var cliente = await _clienteRepository.ObtenerPorIdAsync(ventaDto.ClienteId);
+        var usuario = await _usuarioRepository.ObtenerPorIdAsync(idUsuario);
+
+        return new VentaResponseDto
+        {
+            Id = ventaCreadaId,
+            Total = nuevaVenta.Total,
+            FechaVenta = DateTime.UtcNow, // Aproximación
+            ClienteNombre = cliente?.NombreCompleto,
+            UsuarioNombre = usuario?.NombreUsuario
+        };
+    }
+
+    public async Task<IEnumerable<VentaResponseDto>> ObtenerTodasAsync()
+    {
+        // Esto es ineficiente y es un ejemplo de "N+1 query problem"
+        // pero demuestra la separación de capas.
+        // En un escenario real, usaríamos joins o consultas optimizadas.
+        var ventas = await _ventaRepository.ObtenerTodasAsync();
+        var dtos = new List<VentaResponseDto>();
+
+        foreach (var venta in ventas)
+        {
+            // Por cada venta, hacemos 2 llamadas más a la BD para obtener los nombres.
+            var cliente = await _clienteRepository.ObtenerPorIdAsync(venta.ClienteId);
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(venta.UsuarioId);
+
+            dtos.Add(new VentaResponseDto
+            {
+                Id = venta.Id,
+                FechaVenta = venta.FechaVenta,
+                Total = venta.Total,
+                ClienteNombre = cliente?.NombreCompleto ?? "N/A",
+                UsuarioNombre = usuario?.NombreUsuario ?? "N/A"
+            });
+        }
+        return dtos;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace SistemaVentas.Aplicacion.DTOs
 {
-    public class VentaResponseDto
+    public class VentaConDetallesDto
     {
         public int Id { get; set; }
         public DateTime FechaVenta { get; set; }

@@ -4,8 +4,7 @@ namespace SistemaVentas.Dominio.Interfaces
 {
     public interface IVentaRepository
     {
-        Task<Venta> CrearAsync(Venta venta);
-        Task<Venta?> ObtenerPorIdConDetallesAsync(int id);
-        Task<IEnumerable<Venta>> ObtenerTodasConDetallesAsync();
+        Task<int> CrearAsync(Venta venta);
+        Task<IEnumerable<Venta>> ObtenerTodasAsync();
     }
 }

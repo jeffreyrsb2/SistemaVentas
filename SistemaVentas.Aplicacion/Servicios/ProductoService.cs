@@ -59,7 +59,8 @@ namespace SistemaVentas.Aplicacion.Servicios
 
             // Devolvemos el objeto completo que se creó
             var productoCreado = await _productoRepository.ObtenerPorIdAsync(nuevoId);
-            return new ProductoDto {
+            return new ProductoDto
+            {
                 Id = productoCreado.Id,
                 Nombre = productoCreado.Nombre,
                 Descripcion = productoCreado.Descripcion,

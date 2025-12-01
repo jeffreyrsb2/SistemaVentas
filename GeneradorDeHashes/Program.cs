@@ -1,6 +1,4 @@
-﻿using System;
-
-Console.WriteLine("Generador de Hashes BCrypt");
+﻿Console.WriteLine("Generador de Hashes BCrypt");
 Console.WriteLine("--------------------------");
 Console.WriteLine("Introduce la contraseña a hashear (ejemplo: 123):");
 
