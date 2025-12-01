@@ -1,0 +1,22 @@
+﻿@page
+@model SistemaVentas.Web.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1>Login</h1>
+<form id="form-login">
+    <div class="mb-3">
+        <label>Usuario</label>
+        <input id="usuario" class="form-control" value="admin" />
+    </div>
+    <div class="mb-3">
+        <label>Contraseña</label>
+        <input id="password" type="password" class="form-control" value="123" />
+    </div>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+</form>
+
+@section Scripts {
+    <script src="~/js/login.js" asp-append-version="true"></script>
+}

@@ -4,7 +4,10 @@
     ViewData["Title"] = "Gestión de Productos";
 }
 
-<h1 class="mb-4">Gestión de Productos</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Gestión de Productos</h1>
+    <button id="btn-nuevo" class="btn btn-primary">Nuevo Producto</button>
+</div>
 
 <table id="tabla-productos" class="table table-striped table-bordered" style="width:100%">
     <thead>
@@ -21,3 +24,44 @@
         <!-- Los datos se cargarán aquí con JavaScript y Fetch -->
     </tbody>
 </table>
+
+<!-- Modal para Añadir/Editar Producto -->
+<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productoModalLabel">Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-producto">
+                    <input type="hidden" id="productoId">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="precio" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stock" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/productos.js" asp-append-version="true"></script>
+}
