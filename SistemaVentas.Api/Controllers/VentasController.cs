@@ -55,4 +55,27 @@ public class VentasController : ControllerBase
         if (!resultado) return NotFound();
         return NoContent();
     }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> ActualizarVenta(int id, [FromBody] VentaRequestDto ventaDto)
+    {
+        try
+        {
+            var usuarioId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (usuarioId == null) return Unauthorized();
+
+            var resultado = await _ventaService.ActualizarVentaAsync(id, ventaDto, usuarioId);
+            if (!resultado)
+            {
+                return NotFound("La venta que intentas actualizar no fue encontrada.");
+            }
+            return NoContent(); // Respuesta estándar para un PUT exitoso
+        }
+        catch (Exception ex)
+        {
+            // Captura errores de negocio (ej. stock insuficiente) y los devuelve como un 400.
+            return BadRequest(ex.Message);
+        }
+    }
 }

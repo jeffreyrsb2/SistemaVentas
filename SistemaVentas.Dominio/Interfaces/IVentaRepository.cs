@@ -8,5 +8,6 @@ namespace SistemaVentas.Dominio.Interfaces
         Task<IEnumerable<Venta>> ObtenerTodasAsync();
         Task<Venta?> ObtenerPorIdAsync(int id);
         Task<bool> AnularAsync(int id);
+        Task<bool> ActualizarAsync(Venta venta);
     }
 }

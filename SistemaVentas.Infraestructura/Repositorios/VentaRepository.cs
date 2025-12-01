@@ -116,6 +116,42 @@ namespace SistemaVentas.Infraestructura.Repositorios
             return venta;
         }
 
+        public async Task<bool> ActualizarAsync(Venta venta)
+        {
+            var detallesTable = new DataTable();
+            detallesTable.Columns.Add("ProductoId", typeof(int));
+            detallesTable.Columns.Add("Cantidad", typeof(int));
+            detallesTable.Columns.Add("PrecioUnitario", typeof(decimal));
+
+            foreach (var detalle in venta.Detalles)
+            {
+                detallesTable.Rows.Add(detalle.ProductoId, detalle.Cantidad, detalle.PrecioUnitario);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ActualizarVenta", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@VentaId", venta.Id);
+                    command.Parameters.AddWithValue("@UsuarioId", venta.UsuarioId);
+                    command.Parameters.AddWithValue("@ClienteId", venta.ClienteId);
+                    command.Parameters.AddWithValue("@Total", venta.Total);
+
+                    var detallesParam = command.Parameters.AddWithValue("@Detalles", detallesTable);
+                    detallesParam.SqlDbType = SqlDbType.Structured;
+                    detallesParam.TypeName = "dbo.DetalleVentaType";
+
+                    // Usamos ExecuteScalarAsync para leer la señal de éxito (el '1')
+                    var resultado = await command.ExecuteScalarAsync();
+
+                    // Si el resultado no es nulo y es 1, la transacción fue exitosa.
+                    return resultado != null && Convert.ToInt32(resultado) == 1;
+                }
+            }
+        }
+
         public async Task<bool> AnularAsync(int id)
         {
             using (var connection = new SqlConnection(_connectionString))

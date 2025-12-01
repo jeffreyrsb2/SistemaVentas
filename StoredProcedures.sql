@@ -212,6 +212,14 @@ CREATE OR ALTER PROCEDURE sp_AnularVenta
     @VentaId INT
 AS
 BEGIN
+
+    -- Verificamos si la venta ya está anulada
+    IF EXISTS (SELECT 1 FROM Ventas WHERE Id = @VentaId AND Eliminado = 1)
+    BEGIN
+        -- Si ya está anulada, no hacemos nada y salimos.
+        -- Opcionalmente, podríamos lanzar un error con RAISERROR.
+        RETURN;
+    END
     BEGIN TRANSACTION;
     BEGIN TRY
         -- Marcar la venta como eliminada
@@ -225,6 +233,58 @@ BEGIN
         WHERE d.VentaId = @VentaId;
 
         COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- SP para actualizar una venta existente y sus detalles
+CREATE OR ALTER PROCEDURE sp_ActualizarVenta
+    @VentaId INT,
+    @UsuarioId INT,
+    @ClienteId INT,
+    @Total DECIMAL(18, 2),
+    @Detalles AS dbo.DetalleVentaType READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        -- 1. Devolver el stock de la venta original
+        UPDATE p
+        SET p.Stock = p.Stock + dv.Cantidad
+        FROM Productos p
+        INNER JOIN DetalleVentas dv ON p.Id = dv.ProductoId
+        WHERE dv.VentaId = @VentaId;
+
+        -- 2. Eliminar los detalles de la venta original
+        DELETE FROM DetalleVentas WHERE VentaId = @VentaId;
+
+        -- 3. Actualizar la cabecera de la venta
+        UPDATE Ventas
+        SET UsuarioId = @UsuarioId,
+            ClienteId = @ClienteId,
+            Total = @Total,
+            FechaVenta = GETDATE()
+        WHERE Id = @VentaId;
+
+        -- 4. Insertar los nuevos detalles
+        INSERT INTO DetalleVentas (VentaId, ProductoId, Cantidad, PrecioUnitario)
+        SELECT @VentaId, ProductoId, Cantidad, PrecioUnitario FROM @Detalles;
+
+        -- 5. Restar el nuevo stock
+        UPDATE p
+        SET p.Stock = p.Stock - d.Cantidad
+        FROM Productos p
+        INNER JOIN @Detalles d ON p.Id = d.ProductoId;
+
+        COMMIT TRANSACTION;
+
+        SELECT 1;
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;

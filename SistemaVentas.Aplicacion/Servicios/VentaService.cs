@@ -129,9 +129,49 @@ public class VentaService : IVentaService
         return dto;
     }
 
+    public async Task<bool> ActualizarVentaAsync(int id, VentaRequestDto ventaDto, string usuarioId)
+    {
+        var ventaExistente = await _ventaRepository.ObtenerPorIdAsync(id);
+        if (ventaExistente == null) return false;
+
+        decimal totalVenta = 0;
+        var detallesVenta = new List<DetalleVenta>();
+        var idUsuario = int.Parse(usuarioId);
+
+        foreach (var item in ventaDto.Detalles)
+        {
+            var producto = await _productoRepository.ObtenerPorIdAsync(item.ProductoId);
+            if (producto == null) throw new Exception($"Producto con ID {item.ProductoId} no encontrado.");
+
+            var stockOriginalItem = ventaExistente.Detalles.FirstOrDefault(d => d.ProductoId == item.ProductoId)?.Cantidad ?? 0;
+            if ((producto.Stock + stockOriginalItem) < item.Cantidad)
+            {
+                throw new Exception($"Stock insuficiente para el producto '{producto.Nombre}'.");
+            }
+
+            totalVenta += producto.Precio * item.Cantidad;
+            detallesVenta.Add(new DetalleVenta
+            {
+                ProductoId = item.ProductoId,
+                Cantidad = item.Cantidad,
+                PrecioUnitario = producto.Precio
+            });
+        }
+
+        var ventaActualizada = new Venta
+        {
+            Id = id,
+            UsuarioId = idUsuario,
+            ClienteId = ventaDto.ClienteId,
+            Total = totalVenta,
+            Detalles = detallesVenta
+        };
+
+        return await _ventaRepository.ActualizarAsync(ventaActualizada);
+    }
+
     public async Task<bool> AnularAsync(int id)
     {
-        // Este método simplemente pasa la llamada al repositorio
         return await _ventaRepository.AnularAsync(id);
     }
 }
